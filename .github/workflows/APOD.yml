@@ -1,0 +1,73 @@
+name: Fetch APOD Randomly
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Her saat başı çalışacak şekilde ayarlanmıştır.
+  workflow_dispatch:
+
+jobs:
+  fetch_apod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Fetch APOD data
+        id: fetch_apod
+        run: |
+          python -c "
+          import requests
+          import random
+          import os
+          from datetime import datetime
+
+          # Rastgele bir tarih seçimi
+          year = random.randint(2010, 2025)
+          month = random.randint(1, 12)
+          day = random.randint(1, 28)  # Ayın 28. günü sonrasında sorun yaşamamak için
+          date = f'{year:04d}-{month:02d}-{day:02d}'
+
+          # API'den veri çekme
+          url = f'https://api.nasa.gov/planetary/apod?date={date}&api_key=DEMO_KEY'
+          response = requests.get(url)
+          data = response.json()
+
+          # Dosya yolunu oluşturma (YYYY/MM/DD formatında)
+          dir_path = f'data/{year}/{month:02d}/{day:02d}'
+          os.makedirs(dir_path, exist_ok=True)
+
+          # JSON dosyasını kaydetme
+          file_path = os.path.join(dir_path, f'{date}.json')
+          with open(file_path, 'w') as f:
+              json.dump(data, f, indent=2)
+
+          # İstek yapılan tarih
+          api_request_date = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+          # Commit mesajını oluştur
+          commit_message = f'Add APOD data for random date - API request date: {api_request_date}'
+          print(commit_message)
+          "
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.name 'ali-han'  # GitHub kullanıcı adınızı buraya ekleyin
+          git config --local user.email '42784461+alihan@users.noreply.github.com'  # GitHub e-posta adresinizi buraya ekleyin
+          git add .
+          git commit -m "${{ steps.fetch_apod.outputs.commit_message }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
