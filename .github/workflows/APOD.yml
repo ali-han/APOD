@@ -1,9 +1,9 @@
-name: Fetch APOD Randomly
+name: Fetch Random APOD Data
 
 on:
-  schedule:
-    - cron: '0 * * * *'  # Her saat başı çalışacak şekilde ayarlanmıştır.
   workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'  # Her saat başı çalışır
 
 jobs:
   fetch_apod:
@@ -19,54 +19,56 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+        run: pip install requests
 
-      - name: Fetch APOD data
-        id: fetch_apod
+      - name: Fetch and save random APOD data
         run: |
           python -c "
           import requests
           import random
           import os
           import json
-          from datetime import datetime
+          from datetime import datetime, timedelta
 
-          # Rastgele bir tarih seçimi
-          year = random.randint(2010, 2025)
-          month = random.randint(1, 12)
-          day = random.randint(1, 28)  # Ayın 28. günü sonrasında sorun yaşamamak için
-          date = f'{year:04d}-{month:02d}-{day:02d}'
+          # Bugünün tarihi
+          end_date = datetime.now()
+          # 2010 yılı başlangıç
+          start_date = datetime(2010, 1, 1)
+          
+          # Rastgele tarih seç (2010-bugün arası)
+          delta = end_date - start_date
+          random_days = random.randint(0, delta.days)
+          random_date = start_date + timedelta(days=random_days)
+          date_str = random_date.strftime('%Y-%m-%d')
 
-          # API'den veri çekme
-          url = f'https://api.nasa.gov/planetary/apod?date={date}&api_key=DEMO_KEY'
+          # API'den veri çek
+          url = f'https://api.nasa.gov/planetary/apod?date={date_str}&api_key=DEMO_KEY'
           response = requests.get(url)
-          data = response.json()
-
-          # Dosya yolunu oluşturma (YYYY/MM/DD formatında)
-          dir_path = f'data/{year}/{month:02d}/{day:02d}'
-          os.makedirs(dir_path, exist_ok=True)
-
-          # JSON dosyasını kaydetme
-          file_path = os.path.join(dir_path, f'{date}.json')
-          with open(file_path, 'w') as f:
-              json.dump(data, f, indent=2)
-
-          # İstek yapılan tarih
-          api_request_date = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
-          # Commit mesajını oluştur
-          commit_message = f'Add APOD data for {date} - API request date: {api_request_date}'
-          print(f'::set-output name=commit_message::{commit_message}')
+          
+          if response.status_code == 200:
+              data = response.json()
+              
+              # Dizin yapısını oluştur (YYYY/MM/DD)
+              dir_path = f'apod_data/{random_date.year}/{random_date.month:02d}'
+              os.makedirs(dir_path, exist_ok=True)
+              
+              # JSON dosyasını kaydet
+              file_path = f'{dir_path}/{date_str}.json'
+              with open(file_path, 'w') as f:
+                  json.dump(data, f, indent=2)
+              
+              print(f'Successfully saved APOD data for {date_str}')
+          else:
+              print(f'Error fetching data for {date_str}: {response.status_code}')
+              exit(1)
           "
 
       - name: Commit and push changes
         run: |
-          git config --local user.name 'ali-han'
-          git config --local user.email '42784461+alihan@users.noreply.github.com'
-          git add .
-          git commit -m "${{ steps.fetch_apod.outputs.commit_message }}"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add apod_data/
+          git commit -m "Add random APOD data ($(date -u +'%Y-%m-%d %H:%M:%S'))"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
