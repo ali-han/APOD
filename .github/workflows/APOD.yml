@@ -30,6 +30,7 @@ jobs:
           import requests
           import random
           import os
+          import json
           from datetime import datetime
 
           # Rastgele bir tarih seçimi
@@ -56,16 +57,14 @@ jobs:
           api_request_date = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
           # Commit mesajını oluştur
-          commit_message = f'Add APOD data for random date - API request date: {api_request_date}'
-          print(commit_message)
+          commit_message = f'Add APOD data for {date} - API request date: {api_request_date}'
+          print(f'::set-output name=commit_message::{commit_message}')
           "
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit and push changes
         run: |
-          git config --local user.name 'ali-han'  # GitHub kullanıcı adınızı buraya ekleyin
-          git config --local user.email '42784461+alihan@users.noreply.github.com'  # GitHub e-posta adresinizi buraya ekleyin
+          git config --local user.name 'ali-han'
+          git config --local user.email '42784461+alihan@users.noreply.github.com'
           git add .
           git commit -m "${{ steps.fetch_apod.outputs.commit_message }}"
           git push
