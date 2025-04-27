@@ -437,6 +437,7 @@ function setupFilters(apodIndex) {
   const searchInput = document.getElementById("search-input");
   const filterButtons = document.querySelectorAll(".filter-btn");
   const container = document.getElementById("apod-container");
+  const noResults = document.getElementById("no-results"); // Get noResults element here
 
   // Filter by search
   searchInput.addEventListener(
