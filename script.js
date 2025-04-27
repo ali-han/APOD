@@ -1,31 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  // Theme Toggle
-  const themeToggle = document.getElementById("theme-toggle");
-  const themeIcon = document.getElementById("theme-icon");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  let darkMode =
-    localStorage.getItem("darkMode") === "true" ||
-    (localStorage.getItem("darkMode") === null && prefersDark);
-
-  function applyTheme() {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      themeIcon.innerHTML =
-        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />';
-    } else {
-      document.documentElement.classList.remove("dark");
-      themeIcon.innerHTML =
-        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />';
-    }
-  }
-
-  themeToggle.addEventListener("click", () => {
-    darkMode = !darkMode;
-    localStorage.setItem("darkMode", darkMode);
-    applyTheme();
-  });
-
-  applyTheme();
+  // Removed Theme Toggle functionality
 
   // Load APOD data
   const container = document.getElementById("apod-container");
@@ -159,9 +133,10 @@ async function loadAPODData(path, card) {
 function updateCard(card, apod) {
   const img = card.querySelector("img");
   const title = card.querySelector("h3");
-  const date = card.querySelector("p.text-gray-400");
+  const dateEl = card.querySelector("p.text-gray-400"); // Renamed variable
   const desc = card.querySelector("p.text-gray-300");
   const typeBadge = card.querySelector("span.bg-gray-700");
+  const viewBtn = card.querySelector(".view-btn"); // Get view button
 
   // Use url first, fallback to hdurl
   const imageUrl = apod.url || apod.hdurl;
@@ -172,11 +147,40 @@ function updateCard(card, apod) {
   card.setAttribute("data-hdurl", hdImageUrl);
 
   title.textContent = apod.title;
-  date.textContent = `${apod.date}${
-    apod.copyright ? ` • ${apod.copyright}` : ""
-  }`;
+  // Add calendar icon to date
+  dateEl.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1 align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+    ${apod.date}${apod.copyright ? ` • ${apod.copyright}` : ""}
+  `;
   desc.textContent = apod.explanation;
-  typeBadge.textContent = apod.media_type === "image" ? "Image" : "Video";
+
+  // Add icon to type badge
+  if (apod.media_type === "image") {
+    typeBadge.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      Image
+    `;
+  } else {
+    typeBadge.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+      </svg>
+      Video
+    `;
+  }
+
+  // Add icon to View Details button
+  viewBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+    View Details
+  `;
 
   // Trigger lazy load if card is visible
   const observer = new IntersectionObserver(
@@ -212,7 +216,8 @@ function updateCard(card, apod) {
   observer.observe(card);
 }
 
-function setupModal() {
+// Function to open the modal with APOD details for a given card
+async function openModalForCard(card) {
   const modal = document.getElementById("apod-modal");
   const closeModal = document.getElementById("close-modal");
   const modalTitle = document.getElementById("modal-title");
@@ -222,92 +227,160 @@ function setupModal() {
   const modalNasaLink = document.getElementById("modal-nasa-link");
   const modalMediaContainer = document.getElementById("modal-media-container");
   const favoriteBtn = document.getElementById("modal-favorite-btn");
-  const zoomBtn = document.getElementById("modal-zoom-btn"); // Get the zoom button
+  const zoomBtn = document.getElementById("modal-zoom-btn");
 
-  document.querySelectorAll(".view-btn").forEach((btn) => {
-    btn.addEventListener("click", async function () {
-      const card = this.closest("[data-path]");
-      const path = card.getAttribute("data-path");
+  const path = card.getAttribute("data-path");
+  if (!path) return; // Exit if path is not found
 
-      try {
-        const response = await fetch(path);
-        const apod = await response.json();
+  try {
+    const response = await fetch(path);
+    if (!response.ok) throw new Error(`Failed to fetch APOD data for ${path}`);
+    const apod = await response.json();
 
-        modalTitle.textContent = apod.title;
-        modalDate.textContent = apod.date;
-        modalCopyright.textContent = apod.copyright
-          ? `Copyright: ${apod.copyright}`
-          : "";
-        modalExplanation.textContent = apod.explanation;
+    // Add icon to modal title
+    modalTitle.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2 align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      ${apod.title}
+    `;
+    // Add icon to modal date
+    modalDate.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1 align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      ${apod.date}
+    `;
+    modalCopyright.textContent = apod.copyright
+      ? `Copyright: ${apod.copyright}`
+      : "";
+    modalExplanation.textContent = apod.explanation;
 
-        const nasaDate = apod.date.replace(/-/g, "");
-        modalNasaLink.href = `https://apod.nasa.gov/apod/ap${nasaDate.substring(
-          2
-        )}.html`;
+    const nasaDate = apod.date.replace(/-/g, "");
+    modalNasaLink.href = `https://apod.nasa.gov/apod/ap${nasaDate.substring(
+      2
+    )}.html`;
 
-        modalMediaContainer.innerHTML = ""; // Clear previous content
-        zoomBtn.classList.add("hidden"); // Hide zoom button by default
+    modalMediaContainer.innerHTML = ""; // Clear previous content
+    zoomBtn.classList.add("hidden"); // Hide zoom button by default
 
-        if (apod.media_type === "image") {
-          const imageUrl = apod.url || apod.hdurl; // Use standard URL first
-          const hdImageUrl = apod.hdurl || apod.url; // HD URL for linking
+    if (apod.media_type === "image") {
+      const imageUrl = apod.url || apod.hdurl; // Use standard URL first
+      const hdImageUrl = apod.hdurl || apod.url; // HD URL for linking
 
-          const link = document.createElement("a");
-          link.href = hdImageUrl;
-          link.target = "_blank"; // Open in new tab
-          link.rel = "noopener noreferrer";
+      const link = document.createElement("a");
+      link.href = hdImageUrl;
+      link.target = "_blank"; // Open in new tab
+      link.rel = "noopener noreferrer";
 
-          const img = document.createElement("img");
-          img.src = imageUrl; // Display standard image
-          img.alt = apod.title;
-          img.className = "w-full h-full object-contain max-h-[70vh]";
+      const img = document.createElement("img");
+      img.src = imageUrl; // Display standard image
+      img.alt = apod.title;
+      img.className = "w-full h-full object-contain max-h-[70vh]";
 
-          link.appendChild(img); // Wrap image in link
-          modalMediaContainer.appendChild(link);
+      link.appendChild(img); // Wrap image in link
+      modalMediaContainer.appendChild(link);
 
-          // Setup and show zoom button
-          zoomBtn.href = hdImageUrl;
-          zoomBtn.classList.remove("hidden");
-        } else if (apod.media_type === "video") {
-          const iframe = document.createElement("iframe");
-          iframe.src = apod.url;
-          iframe.className = "w-full aspect-video";
-          iframe.setAttribute("allowfullscreen", "");
-          modalMediaContainer.appendChild(iframe);
-        }
+      // Setup and show zoom button
+      zoomBtn.href = hdImageUrl;
+      zoomBtn.classList.remove("hidden");
+    } else if (apod.media_type === "video") {
+      const iframe = document.createElement("iframe");
+      iframe.src = apod.url;
+      iframe.className = "w-full aspect-video";
+      iframe.setAttribute("allowfullscreen", "");
+      modalMediaContainer.appendChild(iframe);
+    }
 
-        modal.classList.remove("hidden");
-        document.body.style.overflow = "hidden";
-      } catch (error) {
-        console.error("Error loading APOD details:", error);
-        // Handle error display if needed
-        modalMediaContainer.innerHTML =
-          '<p class="text-red-400">Could not load media.</p>';
+    // Store current APOD path in modal for favorite button
+    modal.setAttribute('data-current-apod-path', path);
+
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  } catch (error) {
+    console.error("Error loading APOD details:", error);
+    modalMediaContainer.innerHTML =
+      '<p class="text-red-400">Could not load media details.</p>';
+    // Optionally show the modal even on error to display the message
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function setupModal() {
+  const modal = document.getElementById("apod-modal");
+  const closeModal = document.getElementById("close-modal");
+  const favoriteBtn = document.getElementById("modal-favorite-btn");
+
+  // Use event delegation on the container for view buttons
+  const container = document.getElementById("apod-container");
+  container.addEventListener('click', function(event) {
+    // Handle clicks on "View Details" button
+    const viewBtn = event.target.closest('.view-btn');
+    if (viewBtn) {
+      const card = viewBtn.closest("[data-path]");
+      if (card) {
+        openModalForCard(card);
       }
-    });
+      return; // Stop further processing if it was a view button click
+    }
+
+    // Handle clicks on the image container
+    const imageContainer = event.target.closest('.aspect-h-9');
+    if (imageContainer) {
+       const card = imageContainer.closest("[data-path]");
+       if (card) {
+           // Check if the image itself or its container was clicked
+           // We add a simple check to avoid triggering if clicking interactive elements inside (if any added later)
+           if (event.target.tagName === 'IMG' || event.target === imageContainer) {
+               openModalForCard(card);
+           }
+       }
+    }
   });
 
   closeModal.addEventListener("click", () => {
     modal.classList.add("hidden");
     document.body.style.overflow = "";
+    modal.removeAttribute('data-current-apod-path'); // Clear stored path
   });
 
   modal.addEventListener("click", (e) => {
     if (e.target === modal) {
       modal.classList.add("hidden");
       document.body.style.overflow = "";
+      modal.removeAttribute('data-current-apod-path'); // Clear stored path
     }
   });
 
   // Favorite functionality
   favoriteBtn.addEventListener("click", () => {
-    const currentText = favoriteBtn.textContent.trim();
-    if (currentText === "♡ Add to Favorites") {
-      favoriteBtn.textContent = "♥ Added to Favorites";
-      favoriteBtn.classList.add("bg-nasa-red/20", "text-nasa-red");
-    } else {
-      favoriteBtn.textContent = "♡ Add to Favorites";
+    const currentPath = modal.getAttribute('data-current-apod-path');
+    if (!currentPath) return; // No APOD loaded
+
+    const favText = favoriteBtn.querySelector('.fav-text');
+    const heartEmpty = favoriteBtn.querySelector('.icon-heart-empty');
+    const heartFilled = favoriteBtn.querySelector('.icon-heart-filled');
+
+    // Check based on the filled heart's visibility
+    const isFavorite = !heartFilled.classList.contains('hidden');
+
+    if (isFavorite) {
+      // Remove from favorites
+      favText.textContent = "Add to Favorites";
+      heartEmpty.classList.remove('hidden');
+      heartFilled.classList.add('hidden');
       favoriteBtn.classList.remove("bg-nasa-red/20", "text-nasa-red");
+      console.log(`Removed ${currentPath} from favorites`);
+      // Add logic to remove from localStorage/etc.
+    } else {
+      // Add to favorites
+      favText.textContent = "Added to Favorites";
+      heartEmpty.classList.add('hidden');
+      heartFilled.classList.remove('hidden');
+      favoriteBtn.classList.add("bg-nasa-red/20", "text-nasa-red");
+      console.log(`Added ${currentPath} to favorites`);
+      // Add logic to save to localStorage/etc.
     }
   });
 }
