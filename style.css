@@ -1,0 +1,36 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadein {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #0b3d91 0%, #1a202c 100%);
+}
+
+.aspect-h-9 {
+  aspect-ratio: 16/9;
+}
+
+.prose :where(img):not(:where([class~="not-prose"] *)) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.lazy {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.lazy.loaded {
+  opacity: 1;
+}
