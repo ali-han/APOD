@@ -1,5 +1,33 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  // Removed Theme Toggle functionality
+  // Favorites management functions
+  const getFavorites = () => {
+    const favorites = localStorage.getItem('apod-favorites');
+    return favorites ? JSON.parse(favorites) : [];
+  };
+  
+  const addToFavorites = (path) => {
+    const favorites = getFavorites();
+    if (!favorites.includes(path)) {
+      favorites.push(path);
+      localStorage.setItem('apod-favorites', JSON.stringify(favorites));
+    }
+    return favorites;
+  };
+  
+  const removeFromFavorites = (path) => {
+    const favorites = getFavorites();
+    const index = favorites.indexOf(path);
+    if (index !== -1) {
+      favorites.splice(index, 1);
+      localStorage.setItem('apod-favorites', JSON.stringify(favorites));
+    }
+    return favorites;
+  };
+  
+  const isFavorite = (path) => {
+    const favorites = getFavorites();
+    return favorites.includes(path);
+  };
 
   // Load APOD data
   const container = document.getElementById("apod-container");
@@ -300,6 +328,23 @@ async function openModalForCard(card) {
     // Store current APOD path in modal for favorite button
     modal.setAttribute('data-current-apod-path', path);
 
+    // Update favorite button state based on whether it's already a favorite
+    const favText = favoriteBtn.querySelector('.fav-text');
+    const heartEmpty = favoriteBtn.querySelector('.icon-heart-empty');
+    const heartFilled = favoriteBtn.querySelector('.icon-heart-filled');
+    
+    if (isFavorite(path)) {
+      favText.textContent = "Added to Favorites";
+      heartEmpty.classList.add('hidden');
+      heartFilled.classList.remove('hidden');
+      favoriteBtn.classList.add("bg-nasa-red/20", "text-nasa-red");
+    } else {
+      favText.textContent = "Add to Favorites";
+      heartEmpty.classList.remove('hidden');
+      heartFilled.classList.add('hidden');
+      favoriteBtn.classList.remove("bg-nasa-red/20", "text-nasa-red");
+    }
+
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
   } catch (error) {
@@ -367,25 +412,23 @@ function setupModal() {
     const heartEmpty = favoriteBtn.querySelector('.icon-heart-empty');
     const heartFilled = favoriteBtn.querySelector('.icon-heart-filled');
 
-    // Check based on the filled heart's visibility
-    const isFavorite = !heartFilled.classList.contains('hidden');
+    // Check if it's already a favorite
+    const isFavoriteAlready = isFavorite(currentPath);
 
-    if (isFavorite) {
+    if (isFavoriteAlready) {
       // Remove from favorites
+      removeFromFavorites(currentPath);
       favText.textContent = "Add to Favorites";
       heartEmpty.classList.remove('hidden');
       heartFilled.classList.add('hidden');
       favoriteBtn.classList.remove("bg-nasa-red/20", "text-nasa-red");
-      console.log(`Removed ${currentPath} from favorites`);
-      // Add logic to remove from localStorage/etc.
     } else {
       // Add to favorites
+      addToFavorites(currentPath);
       favText.textContent = "Added to Favorites";
       heartEmpty.classList.add('hidden');
       heartFilled.classList.remove('hidden');
       favoriteBtn.classList.add("bg-nasa-red/20", "text-nasa-red");
-      console.log(`Added ${currentPath} to favorites`);
-      // Add logic to save to localStorage/etc.
     }
   });
 }
@@ -428,8 +471,11 @@ function setupFilters(apodIndex) {
         });
         break;
       case "favorites":
-        // Implement favorites functionality
-        filterAPODs("", () => false); // Placeholder
+        // Get favorite paths from localStorage
+        const favorites = getFavorites();
+        filterAPODs("", (apod) => {
+          return favorites.includes(apod.path);
+        });
         break;
       default:
         filterAPODs("");
