@@ -60,7 +60,8 @@ jobs:
               for file in glob.glob('apod_data/**/*.json', recursive=True):
                   path = Path(file)
                   parts = path.parts  # ('apod_data', 'YYYY', 'MM', 'DD.json')
-                  date_iso = f'{parts[1]}/{parts[2]}/{parts[3].replace(".json","")}'
+                  day_part = parts[3].replace('.json', '')  # Tırnak işaretleri eklendi
+                  date_iso = f'{parts[1]}/{parts[2]}/{day_part}'
                   
                   apod_files.append({
                       'path': file,
