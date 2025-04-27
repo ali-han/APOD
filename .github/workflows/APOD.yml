@@ -31,6 +31,7 @@ jobs:
           import json
           from datetime import datetime, timedelta
           import glob
+          from pathlib import Path
 
           # Rastgele APOD verisini çek
           end_date = datetime.now()
@@ -57,9 +58,13 @@ jobs:
               # Sadece dosya yollarını içeren index oluştur
               apod_files = []
               for file in glob.glob('apod_data/**/*.json', recursive=True):
+                  path = Path(file)
+                  parts = path.parts  # ('apod_data', 'YYYY', 'MM', 'DD.json')
+                  date_iso = f'{parts[1]}/{parts[2]}/{parts[3].replace(".json","")}'
+                  
                   apod_files.append({
                       'path': file,
-                      'date': os.path.basename(file).replace('.json', '')
+                      'date': date_iso  # YYYY/MM/DD formatında
                   })
               
               # Tarihe göre sırala
