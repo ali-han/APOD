@@ -33,7 +33,7 @@ jobs:
           import os
 
           end_date = datetime.now()
-          start_date = datetime(2010, 1, 1)
+          start_date = datetime(2018, 9, 1)
           
           delta = end_date - start_date
           random_days = random.randint(0, delta.days)
