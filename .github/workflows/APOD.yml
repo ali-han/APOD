@@ -22,6 +22,7 @@ jobs:
         run: pip install requests
 
       - name: Fetch and save random APOD data
+        id: fetch_data
         run: |
           python -c "
           import requests
@@ -40,6 +41,7 @@ jobs:
           random_days = random.randint(0, delta.days)
           random_date = start_date + timedelta(days=random_days)
           date_str = random_date.strftime('%Y-%m-%d')
+          time_str = random_date.strftime('%H:%M:%S')
 
           # API'den veri çek
           url = f'https://api.nasa.gov/planetary/apod?date={date_str}&api_key=DEMO_KEY'
@@ -48,16 +50,18 @@ jobs:
           if response.status_code == 200:
               data = response.json()
               
-              # Dizin yapısını oluştur (YYYY/MM/DD)
+              # Dizin yapısını oluştur (YYYY/MM)
               dir_path = f'apod_data/{random_date.year}/{random_date.month:02d}'
               os.makedirs(dir_path, exist_ok=True)
               
-              # JSON dosyasını kaydet
-              file_path = f'{dir_path}/{date_str}.json'
+              # JSON dosyasını DD.json olarak kaydet
+              file_path = f'{dir_path}/{random_date.day:02d}.json'
               with open(file_path, 'w') as f:
                   json.dump(data, f, indent=2)
               
-              print(f'Successfully saved APOD data for {date_str}')
+              # Commit tarihi için çıktı oluştur
+              print(f'::set-output name=commit_date::{date_str} {time_str}')
+              print(f'Successfully saved APOD data as {file_path}')
           else:
               print(f'Error fetching data for {date_str}: {response.status_code}')
               exit(1)
@@ -68,7 +72,9 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add apod_data/
-          git commit -m "Add random APOD data ($(date -u +'%Y-%m-%d %H:%M:%S'))"
+          GIT_COMMITTER_DATE="${{ steps.fetch_data.outputs.commit_date }}" \
+          git commit --date="${{ steps.fetch_data.outputs.commit_date }}" \
+          -m "Add APOD data for ${{ steps.fetch_data.outputs.commit_date }}"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
