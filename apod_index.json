@@ -1,22 +1,26 @@
 [
   {
+    "path": "apod_data/2025/04/19.json",
+    "date": "2025/04/19"
+  },
+  {
     "path": "apod_data/2021/08/30.json",
-    "date": "30"
-  },
-  {
-    "path": "apod_data/2019/09/24.json",
-    "date": "24"
-  },
-  {
-    "path": "apod_data/2019/12/17.json",
-    "date": "17"
+    "date": "2021/08/30"
   },
   {
     "path": "apod_data/2021/02/13.json",
-    "date": "13"
+    "date": "2021/02/13"
+  },
+  {
+    "path": "apod_data/2019/12/17.json",
+    "date": "2019/12/17"
+  },
+  {
+    "path": "apod_data/2019/09/24.json",
+    "date": "2019/09/24"
   },
   {
     "path": "apod_data/2018/08/03.json",
-    "date": "03"
+    "date": "2018/08/03"
   }
 ]
