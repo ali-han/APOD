@@ -30,11 +30,11 @@ jobs:
           import os
           import json
           from datetime import datetime, timedelta
-          import os
+          import glob
 
+          # Rastgele APOD verisini çek
           end_date = datetime.now()
-          start_date = datetime(2018, 9, 1)
-          
+          start_date = datetime(2010, 1, 1)
           delta = end_date - start_date
           random_days = random.randint(0, delta.days)
           random_date = start_date + timedelta(days=random_days)
@@ -47,17 +47,32 @@ jobs:
           if response.status_code == 200:
               data = response.json()
               
+              # Veriyi kaydet
               dir_path = f'apod_data/{random_date.year}/{random_date.month:02d}'
               os.makedirs(dir_path, exist_ok=True)
-              
               file_path = f'{dir_path}/{random_date.day:02d}.json'
               with open(file_path, 'w') as f:
                   json.dump(data, f, indent=2)
               
-              # Environment file method
+              # Tüm APOD verilerini indexle
+              all_apods = []
+              for file in glob.glob('apod_data/**/*.json', recursive=True):
+                  with open(file) as f:
+                      apod = json.load(f)
+                      apod['path'] = file
+                      all_apods.append(apod)
+              
+              # Tarihe göre sırala
+              all_apods.sort(key=lambda x: x['date'], reverse=True)
+              
+              # Index dosyasını oluştur
+              with open('apod_index.json', 'w') as f:
+                  json.dump(all_apods, f, indent=2)
+
+              # Çıktıyı ayarla
               with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
                   print(f'commit_date={date_str} {time_str}', file=fh)
-              print(f'Successfully saved APOD data as {file_path}')
+              print(f'Successfully saved APOD data and updated index')
           else:
               print(f'Error fetching data for {date_str}: {response.status_code}')
               exit(1)
@@ -67,10 +82,10 @@ jobs:
         run: |
           git config --global user.name "ali-han"
           git config --global user.email "42784461+ali-han@users.noreply.github.com"
-          git add apod_data/
+          git add apod_data/ apod_index.json
           GIT_COMMITTER_DATE="${{ steps.fetch_data.outputs.commit_date }}" \
           git commit --date="${{ steps.fetch_data.outputs.commit_date }}" \
-          -m "Add APOD data for ${{ steps.fetch_data.outputs.commit_date }}"
+          -m "Add APOD data for ${{ steps.fetch_data.outputs.commit_date }} + update index"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
