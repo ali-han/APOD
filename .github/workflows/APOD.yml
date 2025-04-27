@@ -34,7 +34,7 @@ jobs:
 
           # Rastgele APOD verisini çek
           end_date = datetime.now()
-          start_date = datetime(2010, 1, 1)
+          start_date = datetime(2018, 9, 1)
           delta = end_date - start_date
           random_days = random.randint(0, delta.days)
           random_date = start_date + timedelta(days=random_days)
@@ -47,45 +47,59 @@ jobs:
           if response.status_code == 200:
               data = response.json()
               
-              # Veriyi kaydet
+              # Veriyi kaydet (APOD dosyası)
               dir_path = f'apod_data/{random_date.year}/{random_date.month:02d}'
               os.makedirs(dir_path, exist_ok=True)
               file_path = f'{dir_path}/{random_date.day:02d}.json'
               with open(file_path, 'w') as f:
                   json.dump(data, f, indent=2)
               
-              # Tüm APOD verilerini indexle
-              all_apods = []
+              # Sadece dosya yollarını içeren index oluştur
+              apod_files = []
               for file in glob.glob('apod_data/**/*.json', recursive=True):
-                  with open(file) as f:
-                      apod = json.load(f)
-                      apod['path'] = file
-                      all_apods.append(apod)
+                  apod_files.append({
+                      'path': file,
+                      'date': os.path.basename(file).replace('.json', '')
+                  })
               
               # Tarihe göre sırala
-              all_apods.sort(key=lambda x: x['date'], reverse=True)
+              apod_files.sort(key=lambda x: x['date'], reverse=True)
               
               # Index dosyasını oluştur
               with open('apod_index.json', 'w') as f:
-                  json.dump(all_apods, f, indent=2)
+                  json.dump(apod_files, f, indent=2)
 
               # Çıktıyı ayarla
               with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
                   print(f'commit_date={date_str} {time_str}', file=fh)
-              print(f'Successfully saved APOD data and updated index')
+                  print(f'apod_file={file_path}', file=fh)
+              print(f'Successfully saved APOD data and updated path index')
           else:
               print(f'Error fetching data for {date_str}: {response.status_code}')
               exit(1)
           "
 
-      - name: Commit and push changes
+      - name: Commit APOD file with original date
         run: |
           git config --global user.name "ali-han"
           git config --global user.email "42784461+ali-han@users.noreply.github.com"
-          git add apod_data/ apod_index.json
+          git add "${{ steps.fetch_data.outputs.apod_file }}"
           GIT_COMMITTER_DATE="${{ steps.fetch_data.outputs.commit_date }}" \
           git commit --date="${{ steps.fetch_data.outputs.commit_date }}" \
-          -m "Add APOD data for ${{ steps.fetch_data.outputs.commit_date }} + update index"
-          git push
+          -m "Add APOD data for ${{ steps.fetch_data.outputs.commit_date }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit index file with current date
+        run: |
+          git config --global user.name "ali-han"
+          git config --global user.email "42784461+ali-han@users.noreply.github.com"
+          git add apod_index.json
+          git commit -m "Update APOD path index"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push changes
+        run: git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
