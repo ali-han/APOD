@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NASA Astronomy Picture of the Day Archive - Explore stunning space images">
+    <title>APOD Archive | Explore NASA's Astronomy Pictures</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="images/NASA_logo.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="images/NASA_logo.svg">
+    <meta name="theme-color" content="#0B3D91">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="APOD Archive | NASA Astronomy Pictures">
+    <meta property="og:description" content="Browse and explore NASA's Astronomy Picture of the Day archive">
+    <meta property="og:image" content="https://apod.nasa.gov/apod/image/2504/NGC5335heic2505_1024.jpg">
+    <meta property="og:url" content="https://astronomy-picture-of-the-day.pages.dev/">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nasa: {
+                            blue: '#0B3D91',
+                            red: '#FC3D21',
+                            dark: '#1a202c'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Modern CSS Features -->
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadein {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #0B3D91 0%, #1a202c 100%);
+        }
+        
+        .aspect-h-9 {
+            aspect-ratio: 16/9;
+        }
+        
+        .prose :where(img):not(:where([class~="not-prose"] *)) {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        
+        .lazy {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .lazy.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-nasa-dark text-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="gradient-bg py-6 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-white">
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-nasa-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                            </svg>
+                            APOD Archive
+                        </span>
+                    </h1>
+                    <p class="mt-1 text-gray-300">NASA Astronomy Picture of the Day Collection</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="bg-nasa-blue/30 px-3 py-1 rounded-full flex items-center">
+                        <span id="total-count" class="font-semibold text-white">Loading...</span>
+                        <span class="ml-1 text-gray-300">images</span>
+                    </div>
+                    
+                    <button id="theme-toggle" class="p-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">
+                        <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button class="filter-btn px-3 py-1 text-sm rounded-full bg-nasa-blue text-white" data-filter="all">All</button>
+                <button class="filter-btn px-3 py-1 text-sm rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600" data-filter="recent">Recent</button>
+                <button class="filter-btn px-3 py-1 text-sm rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600" data-filter="favorites">Favorites</button>
+                <input type="text" id="search-input" placeholder="Search..." class="ml-auto px-3 py-1 text-sm rounded-full bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-1 focus:ring-nasa-blue">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="apod-container">
+            <!-- Skeleton Loader -->
+            <template id="skeleton-template">
+                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg animate-pulse">
+                    <div class="aspect-h-9 bg-gray-700"></div>
+                    <div class="p-4">
+                        <div class="h-5 bg-gray-700 rounded w-3/4 mb-3"></div>
+                        <div class="h-3 bg-gray-700 rounded w-1/2 mb-2"></div>
+                        <div class="h-3 bg-gray-700 rounded w-full mb-1"></div>
+                        <div class="h-3 bg-gray-700 rounded w-5/6"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        
+        <div id="loading-more" class="text-center py-8 hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-nasa-blue"></div>
+        </div>
+        
+        <div id="no-results" class="text-center py-12 hidden">
+            <div class="max-w-md mx-auto bg-gray-800/50 rounded-lg p-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="mt-4 text-lg font-medium text-gray-300">No results found</h3>
+                <p class="mt-1 text-gray-500">Try adjusting your search or filter</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">Data provided by NASA's <a href="https://api.nasa.gov/" class="text-nasa-blue hover:underline" target="_blank" rel="noopener noreferrer">APOD API</a></p>
+            <p class="mt-2 text-sm text-gray-500">All content copyright their respective owners</p>
+            <p class="mt-1 text-xs text-gray-600">Last updated: <span id="last-updated"></span></p>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="apod-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+            </div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="inline-block align-bottom bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
+                <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <div class="flex justify-between items-start">
+                                <h3 id="modal-title" class="text-lg leading-6 font-medium text-white"></h3>
+                                <button id="close-modal" class="ml-4 p-1 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <div id="modal-media-container" class="aspect-h-9 bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center">
+                                    <!-- Media will be inserted here -->
+                                </div>
+                                
+                                <div class="mt-4 prose prose-invert max-w-none">
+                                    <p id="modal-date" class="text-gray-400 text-sm"></p>
+                                    <p id="modal-copyright" class="text-gray-400 text-sm mb-4"></p>
+                                    <p id="modal-explanation" class="text-gray-300"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <a id="modal-nasa-link" href="#" target="_blank" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-nasa-blue text-white hover:bg-nasa-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nasa-blue sm:ml-3 sm:w-auto sm:text-sm">
+                        View on NASA
+                    </a>
+                    <button id="modal-favorite-btn" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-4 py-2 bg-gray-700 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nasa-blue sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        ♡ Add to Favorites
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Theme Toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            let darkMode = localStorage.getItem('darkMode') === 'true' || (localStorage.getItem('darkMode') === null && prefersDark);
+            
+            function applyTheme() {
+                if (darkMode) {
+                    document.documentElement.classList.add('dark');
+                    themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />';
+                }
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                darkMode = !darkMode;
+                localStorage.setItem('darkMode', darkMode);
+                applyTheme();
+            });
+            
+            applyTheme();
+            
+            // Load APOD data
+            const container = document.getElementById('apod-container');
+            const loadingMore = document.getElementById('loading-more');
+            const noResults = document.getElementById('no-results');
+            const totalCount = document.getElementById('total-count');
+            const lastUpdated = document.getElementById('last-updated');
+            const skeletonTemplate = document.getElementById('skeleton-template');
+            
+            // Show loading skeletons
+            for (let i = 0; i < 8; i++) {
+                container.appendChild(skeletonTemplate.content.cloneNode(true));
+            }
+            
+            try {
+                const response = await fetch('apod_index.json');
+                if (!response.ok) throw new Error('Failed to load data');
+                
+                const apodIndex = await response.json();
+                totalCount.textContent = apodIndex.length;
+                lastUpdated.textContent = new Date().toLocaleString();
+                
+                // Clear skeletons
+                container.innerHTML = '';
+                
+                if (apodIndex.length === 0) {
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+                
+                // Load APODs with lazy loading
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const card = entry.target;
+                            const img = card.querySelector('img');
+                            const dataSrc = img.getAttribute('data-src');
+                            
+                            if (dataSrc) {
+                                img.src = dataSrc;
+                                img.removeAttribute('data-src');
+                                img.classList.add('lazy');
+                                
+                                img.onload = () => {
+                                    img.classList.add('loaded');
+                                    card.classList.add('animate-fadein');
+                                };
+                                
+                                img.onerror = () => {
+                                    const hdUrl = card.getAttribute('data-hdurl');
+                                    if (hdUrl) img.src = hdUrl;
+                                };
+                            }
+                            
+                            observer.unobserve(card);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                apodIndex.forEach((apod, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 opacity-0';
+                    card.setAttribute('data-date', apod.date);
+                    card.setAttribute('data-path', apod.path);
+                    
+                    card.innerHTML = `
+                        <div class="aspect-h-9 bg-gray-700/50 flex items-center justify-center">
+                            <img 
+                                data-src="" 
+                                alt="Loading..." 
+                                class="object-cover w-full h-full"
+                                loading="lazy"
+                            >
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2 line-clamp-2">Loading...</h3>
+                            <p class="text-gray-400 text-sm mb-3">${apod.date}</p>
+                            <p class="text-gray-300 text-sm line-clamp-3">Loading description...</p>
+                            <div class="mt-4 flex justify-between items-center">
+                                <span class="text-xs px-2 py-1 bg-gray-700 rounded-full text-blue-300">
+                                    Loading...
+                                </span>
+                                <button class="text-blue-400 hover:underline text-sm view-btn">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                    observer.observe(card);
+                    
+                    // Load APOD data individually
+                    loadAPODData(apod.path, card);
+                });
+                
+                // Setup modal
+                setupModal();
+                
+                // Setup filters
+                setupFilters(apodIndex);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = `
+                    <div class="col-span-full bg-red-900/50 border border-red-700 rounded-lg p-4 max-w-md mx-auto">
+                        <p class="text-red-300">Failed to load APOD data. Please try again later.</p>
+                    </div>
+                `;
+            }
+        });
+        
+        async function loadAPODData(path, card) {
+            try {
+                const response = await fetch(path);
+                if (!response.ok) throw new Error('Failed to load APOD');
+                
+                const apod = await response.json();
+                updateCard(card, apod);
+                
+            } catch (error) {
+                console.error('Error loading APOD:', error);
+                card.querySelector('h3').textContent = 'Failed to load';
+                card.querySelector('p:last-child').textContent = 'Could not load this APOD data';
+            }
+        }
+        
+        function updateCard(card, apod) {
+            const img = card.querySelector('img');
+            const title = card.querySelector('h3');
+            const date = card.querySelector('p.text-gray-400');
+            const desc = card.querySelector('p.text-gray-300');
+            const typeBadge = card.querySelector('span.bg-gray-700');
+            
+            // Use url first, fallback to hdurl
+            const imageUrl = apod.url || apod.hdurl;
+            const hdImageUrl = apod.hdurl || apod.url;
+            
+            img.setAttribute('data-src', imageUrl);
+            img.setAttribute('alt', apod.title);
+            card.setAttribute('data-hdurl', hdImageUrl);
+            
+            title.textContent = apod.title;
+            date.textContent = `${apod.date}${apod.copyright ? ` • ${apod.copyright}` : ''}`;
+            desc.textContent = apod.explanation;
+            typeBadge.textContent = apod.media_type === 'image' ? 'Image' : 'Video';
+            
+            // Trigger lazy load if card is visible
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target.querySelector('img');
+                        const dataSrc = img.getAttribute('data-src');
+                        
+                        if (dataSrc) {
+                            img.src = dataSrc;
+                            img.removeAttribute('data-src');
+                            img.classList.add('lazy');
+                            
+                            img.onload = () => {
+                                img.classList.add('loaded');
+                                card.classList.add('animate-fadein');
+                            };
+                            
+                            img.onerror = () => {
+                                const hdUrl = card.getAttribute('data-hdurl');
+                                if (hdUrl) img.src = hdUrl;
+                            };
+                        }
+                        
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            observer.observe(card);
+        }
+        
+        function setupModal() {
+            const modal = document.getElementById('apod-modal');
+            const closeModal = document.getElementById('close-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDate = document.getElementById('modal-date');
+            const modalCopyright = document.getElementById('modal-copyright');
+            const modalExplanation = document.getElementById('modal-explanation');
+            const modalNasaLink = document.getElementById('modal-nasa-link');
+            const modalMediaContainer = document.getElementById('modal-media-container');
+            const favoriteBtn = document.getElementById('modal-favorite-btn');
+            
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const card = this.closest('[data-path]');
+                    const path = card.getAttribute('data-path');
+                    
+                    try {
+                        const response = await fetch(path);
+                        const apod = await response.json();
+                        
+                        modalTitle.textContent = apod.title;
+                        modalDate.textContent = apod.date;
+                        modalCopyright.textContent = apod.copyright ? `Copyright: ${apod.copyright}` : '';
+                        modalExplanation.textContent = apod.explanation;
+                        
+                        const nasaDate = apod.date.replace(/-/g, '');
+                        modalNasaLink.href = `https://apod.nasa.gov/apod/ap${nasaDate.substring(2)}.html`;
+                        
+                        modalMediaContainer.innerHTML = '';
+                        if (apod.media_type === 'image') {
+                            const img = document.createElement('img');
+                            img.src = apod.hdurl || apod.url;
+                            img.alt = apod.title;
+                            img.className = 'w-full h-full object-contain max-h-[70vh]';
+                            modalMediaContainer.appendChild(img);
+                        } else {
+                            const iframe = document.createElement('iframe');
+                            iframe.src = apod.url;
+                            iframe.className = 'w-full aspect-video';
+                            iframe.setAttribute('allowfullscreen', '');
+                            modalMediaContainer.appendChild(iframe);
+                        }
+                        
+                        modal.classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                        
+                    } catch (error) {
+                        console.error('Error loading APOD details:', error);
+                    }
+                });
+            });
+            
+            closeModal.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Favorite functionality
+            favoriteBtn.addEventListener('click', () => {
+                const currentText = favoriteBtn.textContent.trim();
+                if (currentText === '♡ Add to Favorites') {
+                    favoriteBtn.textContent = '♥ Added to Favorites';
+                    favoriteBtn.classList.add('bg-nasa-red/20', 'text-nasa-red');
+                } else {
+                    favoriteBtn.textContent = '♡ Add to Favorites';
+                    favoriteBtn.classList.remove('bg-nasa-red/20', 'text-nasa-red');
+                }
+            });
+        }
+        
+        function setupFilters(apodIndex) {
+            const searchInput = document.getElementById('search-input');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const container = document.getElementById('apod-container');
+            
+            // Filter by search
+            searchInput.addEventListener('input', debounce(() => {
+                const searchTerm = searchInput.value.toLowerCase();
+                filterAPODs(searchTerm);
+            }, 300));
+            
+            // Filter by button
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterButtons.forEach(b => b.classList.remove('bg-nasa-blue', 'text-white'));
+                    btn.classList.add('bg-nasa-blue', 'text-white');
+                    
+                    const filter = btn.getAttribute('data-filter');
+                    applyFilter(filter);
+                });
+            });
+            
+            function applyFilter(filter) {
+                switch(filter) {
+                    case 'recent':
+                        filterAPODs('', (apod) => {
+                            const apodDate = new Date(apod.date.replace(/\//g, '-'));
+                            const oneYearAgo = new Date();
+                            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                            return apodDate > oneYearAgo;
+                        });
+                        break;
+                    case 'favorites':
+                        // Implement favorites functionality
+                        filterAPODs('', () => false); // Placeholder
+                        break;
+                    default:
+                        filterAPODs('');
+                }
+            }
+            
+            function filterAPODs(searchTerm = '', customFilter = null) {
+                const cards = container.querySelectorAll('[data-path]');
+                let visibleCount = 0;
+                
+                cards.forEach(card => {
+                    const path = card.getAttribute('data-path');
+                    const apod = apodIndex.find(a => a.path === path);
+                    
+                    const matchesSearch = searchTerm === '' || 
+                        (apod && (
+                            apod.title.toLowerCase().includes(searchTerm) || 
+                            apod.explanation.toLowerCase().includes(searchTerm) ||
+                            apod.date.includes(searchTerm)
+                        ));
+                    
+                    const matchesFilter = customFilter ? customFilter(apod) : true;
+                    
+                    if (matchesSearch && matchesFilter) {
+                        card.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+                
+                noResults.classList.toggle('hidden', visibleCount > 0);
+            }
+            
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this, args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), wait);
+                };
+            }
+        }
+    </script>
+</body>
+</html>
