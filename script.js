@@ -251,9 +251,14 @@ async function openModalForCard(card) {
       </svg>
       ${apod.date}
     `;
-    modalCopyright.textContent = apod.copyright
-      ? `Copyright: ${apod.copyright}`
-      : "";
+    // Display copyright if available
+    if (apod.copyright) {
+      modalCopyright.textContent = `Copyright: ${apod.copyright.trim()}`; // Trim whitespace
+      modalCopyright.classList.remove('hidden'); // Show the element
+    } else {
+      modalCopyright.textContent = ""; // Clear content if no copyright
+      modalCopyright.classList.add('hidden'); // Hide the element
+    }
     modalExplanation.textContent = apod.explanation;
 
     const nasaDate = apod.date.replace(/-/g, "");
