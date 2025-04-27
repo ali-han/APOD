@@ -3,7 +3,7 @@ name: Fetch Random APOD Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'  # Her saat başı çalışır
+    - cron: '0 * * * *'
 
 jobs:
   fetch_apod:
@@ -30,37 +30,33 @@ jobs:
           import os
           import json
           from datetime import datetime, timedelta
+          import os
 
-          # Bugünün tarihi
           end_date = datetime.now()
-          # 2010 yılı başlangıç
           start_date = datetime(2010, 1, 1)
           
-          # Rastgele tarih seç (2010-bugün arası)
           delta = end_date - start_date
           random_days = random.randint(0, delta.days)
           random_date = start_date + timedelta(days=random_days)
           date_str = random_date.strftime('%Y-%m-%d')
           time_str = random_date.strftime('%H:%M:%S')
 
-          # API'den veri çek
           url = f'https://api.nasa.gov/planetary/apod?date={date_str}&api_key=DEMO_KEY'
           response = requests.get(url)
           
           if response.status_code == 200:
               data = response.json()
               
-              # Dizin yapısını oluştur (YYYY/MM)
               dir_path = f'apod_data/{random_date.year}/{random_date.month:02d}'
               os.makedirs(dir_path, exist_ok=True)
               
-              # JSON dosyasını DD.json olarak kaydet
               file_path = f'{dir_path}/{random_date.day:02d}.json'
               with open(file_path, 'w') as f:
                   json.dump(data, f, indent=2)
               
-              # Commit tarihi için çıktı oluştur
-              print(f'::set-output name=commit_date::{date_str} {time_str}')
+              # Environment file method
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+                  print(f'commit_date={date_str} {time_str}', file=fh)
               print(f'Successfully saved APOD data as {file_path}')
           else:
               print(f'Error fetching data for {date_str}: {response.status_code}')
