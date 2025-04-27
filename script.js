@@ -1,34 +1,34 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  // Favorites management functions
-  const getFavorites = () => {
-    const favorites = localStorage.getItem('apod-favorites');
-    return favorites ? JSON.parse(favorites) : [];
-  };
-  
-  const addToFavorites = (path) => {
-    const favorites = getFavorites();
-    if (!favorites.includes(path)) {
-      favorites.push(path);
-      localStorage.setItem('apod-favorites', JSON.stringify(favorites));
-    }
-    return favorites;
-  };
-  
-  const removeFromFavorites = (path) => {
-    const favorites = getFavorites();
-    const index = favorites.indexOf(path);
-    if (index !== -1) {
-      favorites.splice(index, 1);
-      localStorage.setItem('apod-favorites', JSON.stringify(favorites));
-    }
-    return favorites;
-  };
-  
-  const isFavorite = (path) => {
-    const favorites = getFavorites();
-    return favorites.includes(path);
-  };
+// Favorites management functions - global scope
+const getFavorites = () => {
+  const favorites = localStorage.getItem('apod-favorites');
+  return favorites ? JSON.parse(favorites) : [];
+};
 
+const addToFavorites = (path) => {
+  const favorites = getFavorites();
+  if (!favorites.includes(path)) {
+    favorites.push(path);
+    localStorage.setItem('apod-favorites', JSON.stringify(favorites));
+  }
+  return favorites;
+};
+
+const removeFromFavorites = (path) => {
+  const favorites = getFavorites();
+  const index = favorites.indexOf(path);
+  if (index !== -1) {
+    favorites.splice(index, 1);
+    localStorage.setItem('apod-favorites', JSON.stringify(favorites));
+  }
+  return favorites;
+};
+
+const isFavorite = (path) => {
+  const favorites = getFavorites();
+  return favorites.includes(path);
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
   // Load APOD data
   const container = document.getElementById("apod-container");
   const loadingMore = document.getElementById("loading-more");
