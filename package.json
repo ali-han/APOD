@@ -1,0 +1,28 @@
+{
+  "name": "apod",
+  "version": "1.0.0",
+  "description": "Astronomy Picture of the Day (APOD)",
+  "main": "script.js",
+  "scripts": {
+    "build:css": "node build-tailwind.js",
+    "watch:css": "node build-tailwind.js && echo 'Note: Watch mode is not supported with this build script'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ali-han/APOD.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ali-han/APOD/issues"
+  },
+  "homepage": "https://github.com/ali-han/APOD#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.4"
+  }
+}

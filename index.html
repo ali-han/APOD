@@ -6,8 +6,7 @@
     <meta name="description" content="NASA Astronomy Picture of the Day Archive - Explore stunning space images">
     <title>APOD Archive | Explore NASA's Astronomy Pictures</title>
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+    <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
@@ -24,29 +23,36 @@
     <meta property="og:url" content="https://astronomy-picture-of-the-day.pages.dev/">
     <meta name="twitter:card" content="summary_large_image">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (Compiled Version) -->
+    <link href="dist/style.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Inline Tailwind Config - Only for development -->
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        nasa: {
-                            blue: '#0B3D91',
-                            red: '#FC3D21',
-                            dark: '#1a202c'
+        // Tailwind configuration for theme consistency
+        // This is only applied when using the CDN in development
+        if (window.tailwind) {
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        colors: {
+                            nasa: {
+                                blue: '#0B3D91',
+                                red: '#FC3D21',
+                                dark: '#1a202c'
+                            }
+                        },
+                        fontFamily: {
+                            sans: ['Inter', 'ui-sans-serif', 'system-ui']
                         }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui']
                     }
                 }
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
 </head>
 <body class="bg-nasa-dark text-gray-100 min-h-screen flex flex-col">
     <!-- Header -->

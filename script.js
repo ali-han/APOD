@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <img 
                         data-src="" 
                         alt="Loading..." 
-                        class="object-cover w-full h-full"
+                        class="object-cover w-full h-full cursor-zoom-in transition-transform duration-300"
                         loading="lazy"
                     >
                 </div>
