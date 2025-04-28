@@ -24,35 +24,62 @@
     <meta name="twitter:card" content="summary_large_image">
     
     <!-- Tailwind CSS (Compiled Version) -->
-    <link href="dist/style.css" rel="stylesheet">
+    <link href="dist/style.css?v=1" rel="stylesheet">
+
+    <!-- REMOVED Custom CSS Link -->
+    <!-- <link href="custom.css" rel="stylesheet" type="text/css"> -->
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Inline Tailwind Config - Only for development -->
+        
+    <!-- Fallback for development -->
+    <!--
     <script>
-        // Tailwind configuration for theme consistency
-        // This is only applied when using the CDN in development
-        if (window.tailwind) {
-            tailwind.config = {
-                darkMode: 'class',
-                theme: {
-                    extend: {
-                        colors: {
-                            nasa: {
-                                blue: '#0B3D91',
-                                red: '#FC3D21',
-                                dark: '#1a202c'
+        // If styles don't load properly, fall back to Tailwind CDN for development
+        setTimeout(function() {
+            // Check if any tailwind classes are working
+            const element = document.querySelector('header');
+            if (!element) return; // Safety check
+            
+            const styles = window.getComputedStyle(element);
+            const hasTailwind = styles.backgroundColor !== 'rgba(0, 0, 0, 0)' && 
+                               styles.backgroundColor !== 'transparent';
+            
+            console.log('Background color detected:', styles.backgroundColor);
+            console.log('Tailwind styles detected:', hasTailwind);
+            
+            if (!hasTailwind) {
+                console.warn('Tailwind styles not detected, loading CDN fallback for development');
+                const cdnScript = document.createElement('script');
+                cdnScript.src = 'https://cdn.tailwindcss.com';
+                document.head.appendChild(cdnScript);
+                
+                // Add configuration once CDN is loaded
+                cdnScript.onload = function() {
+                    if (window.tailwind) {
+                        tailwind.config = {
+                            darkMode: 'class',
+                            theme: {
+                                extend: {
+                                    colors: {
+                                        nasa: {
+                                            blue: '#0B3D91',
+                                            red: '#FC3D21',
+                                            dark: '#1a202c'
+                                        }
+                                    },
+                                    fontFamily: {
+                                        sans: ['Inter', 'ui-sans-serif', 'system-ui']
+                                    }
+                                }
                             }
-                        },
-                        fontFamily: {
-                            sans: ['Inter', 'ui-sans-serif', 'system-ui']
                         }
                     }
-                }
+                };
             }
-        }
+        }, 300);
     </script>
+    -->
 </head>
 <body class="bg-nasa-dark text-gray-100 min-h-screen flex flex-col">
     <!-- Header -->
