@@ -4,16 +4,72 @@
     "date": "2025/04/19"
   },
   {
+    "path": "apod_data/2025/02/06.json",
+    "date": "2025/02/06"
+  },
+  {
+    "path": "apod_data/2025/02/01.json",
+    "date": "2025/02/01"
+  },
+  {
+    "path": "apod_data/2024/07/07.json",
+    "date": "2024/07/07"
+  },
+  {
+    "path": "apod_data/2023/06/27.json",
+    "date": "2023/06/27"
+  },
+  {
+    "path": "apod_data/2023/06/23.json",
+    "date": "2023/06/23"
+  },
+  {
     "path": "apod_data/2023/05/11.json",
     "date": "2023/05/11"
+  },
+  {
+    "path": "apod_data/2023/03/23.json",
+    "date": "2023/03/23"
+  },
+  {
+    "path": "apod_data/2023/02/28.json",
+    "date": "2023/02/28"
+  },
+  {
+    "path": "apod_data/2022/12/30.json",
+    "date": "2022/12/30"
+  },
+  {
+    "path": "apod_data/2022/06/30.json",
+    "date": "2022/06/30"
+  },
+  {
+    "path": "apod_data/2022/06/07.json",
+    "date": "2022/06/07"
+  },
+  {
+    "path": "apod_data/2021/09/14.json",
+    "date": "2021/09/14"
   },
   {
     "path": "apod_data/2021/08/30.json",
     "date": "2021/08/30"
   },
   {
+    "path": "apod_data/2021/08/12.json",
+    "date": "2021/08/12"
+  },
+  {
     "path": "apod_data/2021/02/13.json",
     "date": "2021/02/13"
+  },
+  {
+    "path": "apod_data/2020/08/07.json",
+    "date": "2020/08/07"
+  },
+  {
+    "path": "apod_data/2020/01/13.json",
+    "date": "2020/01/13"
   },
   {
     "path": "apod_data/2019/12/17.json",
@@ -22,6 +78,14 @@
   {
     "path": "apod_data/2019/09/24.json",
     "date": "2019/09/24"
+  },
+  {
+    "path": "apod_data/2019/07/30.json",
+    "date": "2019/07/30"
+  },
+  {
+    "path": "apod_data/2019/01/09.json",
+    "date": "2019/01/09"
   },
   {
     "path": "apod_data/2018/08/03.json",
