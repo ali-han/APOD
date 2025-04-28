@@ -12,6 +12,10 @@
     "date": "2025/02/01"
   },
   {
+    "path": "apod_data/2024/12/23.json",
+    "date": "2024/12/23"
+  },
+  {
     "path": "apod_data/2024/07/07.json",
     "date": "2024/07/07"
   },
@@ -86,6 +90,10 @@
   {
     "path": "apod_data/2019/01/09.json",
     "date": "2019/01/09"
+  },
+  {
+    "path": "apod_data/2018/12/22.json",
+    "date": "2018/12/22"
   },
   {
     "path": "apod_data/2018/08/03.json",
