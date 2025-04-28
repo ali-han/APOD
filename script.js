@@ -251,6 +251,7 @@ async function openModalForCard(card) {
   const modalTitle = document.getElementById("modal-title");
   const modalDate = document.getElementById("modal-date");
   const modalCopyright = document.getElementById("modal-copyright");
+  const copyrightText = modalCopyright.querySelector(".copyright-text");
   const modalExplanation = document.getElementById("modal-explanation");
   const modalNasaLink = document.getElementById("modal-nasa-link");
   const modalMediaContainer = document.getElementById("modal-media-container");
@@ -281,10 +282,10 @@ async function openModalForCard(card) {
     `;
     // Display copyright if available
     if (apod.copyright) {
-      modalCopyright.textContent = `Copyright: ${apod.copyright.trim()}`; // Trim whitespace
+      copyrightText.textContent = `Copyright: ${apod.copyright.trim()}`; // Trim whitespace
       modalCopyright.classList.remove('hidden'); // Show the element
     } else {
-      modalCopyright.textContent = ""; // Clear content if no copyright
+      copyrightText.textContent = ""; // Clear content if no copyright
       modalCopyright.classList.add('hidden'); // Hide the element
     }
     modalExplanation.textContent = apod.explanation;
@@ -361,6 +362,7 @@ function setupModal() {
   const modal = document.getElementById("apod-modal");
   const closeModal = document.getElementById("close-modal");
   const favoriteBtn = document.getElementById("modal-favorite-btn");
+  const modalOverlay = document.getElementById("modal-overlay");
 
   // Use event delegation on the container for view buttons
   const container = document.getElementById("apod-container");
@@ -389,12 +391,21 @@ function setupModal() {
     }
   });
 
+  // Close modal when clicking the close button
   closeModal.addEventListener("click", () => {
     modal.classList.add("hidden");
     document.body.style.overflow = "";
     modal.removeAttribute('data-current-apod-path'); // Clear stored path
   });
 
+  // Close modal when clicking the overlay
+  modalOverlay.addEventListener("click", () => {
+    modal.classList.add("hidden");
+    document.body.style.overflow = "";
+    modal.removeAttribute('data-current-apod-path'); // Clear stored path
+  });
+
+  // Also keep the original event for backwards compatibility
   modal.addEventListener("click", (e) => {
     if (e.target === modal) {
       modal.classList.add("hidden");
@@ -451,13 +462,19 @@ function setupFilters(apodIndex) {
   // Filter by button
   filterButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      filterButtons.forEach((b) =>
-        b.classList.remove("bg-nasa-blue", "text-white")
-      );
+      // Update button styles
+      filterButtons.forEach((b) => {
+        b.classList.remove("bg-nasa-blue", "text-white");
+        b.classList.add("bg-gray-700", "text-gray-300", "hover:bg-gray-600");
+      });
+      btn.classList.remove("bg-gray-700", "text-gray-300", "hover:bg-gray-600");
       btn.classList.add("bg-nasa-blue", "text-white");
 
       const filter = btn.getAttribute("data-filter");
       applyFilter(filter);
+
+      // Scroll to top smoothly
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
