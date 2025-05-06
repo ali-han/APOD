@@ -1,5 +1,9 @@
 [
   {
+    "path": "apod_data/2025/04/20.json",
+    "date": "2025/04/20"
+  },
+  {
     "path": "apod_data/2025/04/19.json",
     "date": "2025/04/19"
   },
