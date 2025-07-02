@@ -79,7 +79,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
               img.onerror = () => {
                 const hdUrl = card.getAttribute("data-hdurl");
-                if (hdUrl) img.src = hdUrl;
+                if (hdUrl && hdUrl !== "undefined" && hdUrl !== "null") {
+                  img.src = hdUrl;
+                } else {
+                  // Show error placeholder or default image
+                  img.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlDQTNBRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIE5vdCBBdmFpbGFibGU8L3RleHQ+PC9zdmc+";
+                }
               };
             }
 
@@ -172,7 +177,14 @@ function updateCard(card, apod) {
 
   img.setAttribute("data-src", imageUrl);
   img.setAttribute("alt", apod.title);
-  card.setAttribute("data-hdurl", hdImageUrl);
+  // Only set data-hdurl if hdImageUrl is valid and different from imageUrl
+  if (hdImageUrl && 
+      hdImageUrl !== imageUrl && 
+      hdImageUrl !== "undefined" && 
+      hdImageUrl !== "null" && 
+      hdImageUrl.startsWith('http')) {
+    card.setAttribute("data-hdurl", hdImageUrl);
+  }
 
   title.textContent = apod.title;
   // Add calendar icon to date
@@ -230,7 +242,12 @@ function updateCard(card, apod) {
 
             img.onerror = () => {
               const hdUrl = card.getAttribute("data-hdurl");
-              if (hdUrl) img.src = hdUrl;
+              if (hdUrl && hdUrl !== "undefined" && hdUrl !== "null") {
+                img.src = hdUrl;
+              } else {
+                // Show error placeholder or default image
+                img.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlDQTNBRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIE5vdCBBdmFpbGFibGU8L3RleHQ+PC9zdmc+";
+              }
             };
           }
 
